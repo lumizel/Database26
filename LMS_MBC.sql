@@ -53,4 +53,136 @@ insert	into members (uid,password,name,role,active)
 values ('ymy','0807','여민엽','user',true);
 select * from members;
 
+drop table scorese;
+create table scores(
+id			int auto_increment primary key,
+member_id 	int not null,
+korean	 	int not null,
+english	 	int not null,
+math	 	int not null,
+total	 	int not null,
+average	 	int not null,
+grade	 	char(1) not null,
+created_at datetime default current_timestamp,
+foreign key (member_id) references members(id)
+); #외래키   내가갖은 필드랑     관계맺다. members 테이블에 있는 id필드랑 관계를 맺겠다.
+
+#primart key는 기본키로 공백이 없고 유일해야하고 인덱싱이 되어 있는 옵션
+# 후보키 - 공백이 없고 유일해야 하는 필드들(학번,주민번호,아이디,이메일 등등...)
+#인덱싱 - db에서 빠른 찾기를 위한 옵션
+#외래키 - 다른 테이블과 연결이 되는 key!!
+#외래키는 자식이고 기본키는 부모이다.
+# members가 부모임으로 kkw 계정이 있어야 scores 테이블에 kkw 점수를 넣을 수 있다.
+# members테이블에 id와 scores 테이블에 member_id는 타입이 일치해야한다.
+
+
+insert into scores(member_id,korean,english,math,total,average,grade)
+values(2,99,99,99,297,99,'A');
+insert into scores(member_id,korean,english,math,total,average,grade)
+values(3,88,88,88,264,88,'B');
+insert into scores(member_id,korean,english,math,total,average,grade)
+values(4,77,77,77,231,77,'C');
+insert into scores(member_id,korean,english,math,total,average,grade)
+values(5,66,66,66,198,66,'F');
+insert into scores(member_id,korean,english,math,total,average,grade)
+values(6,80,80,80,240,80,'B');
+insert into scores(member_id,korean,english,math,total,average,grade)
+values(7,70,95,87,252,84,'B');
+
+select * from scores;
+
+
+# 기본 정보 조회(INNER JOIN)
+#성적 데이터가 존재하는 회원만 조회합니다. 이름,과목,점수,평균,등급을 가져오는 쿼리.
+select
+	m.name as 이름, # AS 는 필드 이름 바꿔주는 용도
+    m.uid as 아이디,
+    s.korean as 국어,
+    s.english as 영어,
+    s.math as 수학,
+    s.total as 총점,
+    s.average as 평균,
+    s.grade as 등급
+from members m
+#Aliasing(별칭) - members m 처럼 테이블 이름 뒤에 한 글자 별칭을 주면 쿼리가 훨씬 간결.
+join scores s on m.id = s.member_id;
+# on 조건 - m.id = s.member_id와 같이
+# 두 테이블을 연결하는 핵심 키 (PK-FK)를 정확히 지정.
+
+delete from scores where member_id = 2;
+
+#성적이 없는 회원도 포함 조회(LEFT JOIN)
+#성적표가 아직 작성되지 않은 회원까지 모두 포함하여 명단을 만들 때 사용. 성적이 없으면 널 값으로 표시
+select
+	m.name as 이름,
+    m.role as 역할,
+    s.average as 평균,
+    s.grade as 등급,
+    ifnull(s.grade,'미산출') as 상태 # 성적이 없으면 '미산출' 표시
+from members m
+left join scores s on m.id = s.member_id;
+
+drop table boards;
+create table boards(
+	id		int auto_increment primary key,
+	member_id int not null,
+    title 	varchar(200) not null,
+    content	text not null,
+    created_at datetime default current_timestamp,
+    
+    foreign key(member_id) references members(id)
+);
+
+insert into boards (member_id,title,content)
+values(3,'제목1','제목1');
+insert into boards (member_id,title,content)
+values(4,'제목4','제목4');
+insert into boards (member_id,title,content)
+values(4,'제목5','제목5');
+insert into boards (member_id,title,content)
+values(5,'제목6','제목6');
+
+select * FROM boards;
+
+#게시글 목록 조회 - inner join
+select
+	b.id as 글번호,
+    b.title as 제목,
+    m.name as 작성자,
+    b.created_at as 작성일
+from boards b # from 뒤가 부모임.
+inner join members m on b.member_id = m.id
+order by b.created_at desc; #최신 순으로 졍렬 (내림차순)
+    
+#특정 사용자의 글만 조회 - where 절 조합
+select
+    b.title,
+    b.content,
+    m.name as 작성자,
+    b.created_at
+from boards b
+join members m on b.member_id = m.id
+where m.uid = 'lhj';
+
+# 관리자용 : 통계 조회 - group by 조합
+select
+	m.name,
+    m.uid,
+    count(b.id) as 작성글수 #group by와 세트
+from members m
+left join boards b on m.id = b.member_id
+group by m.id;
+
+# 작성자 이름으로 검색하기 - like 활용 -> 문자열 추출
+select
+	b.id as 글번호,
+    b.title as 제목,
+    m.name as 작성자,
+    b.created_at as 작성일
+from boards b
+inner join members m on b.member_id = m.id
+where m.name like '%효정%'
+order by b.created_at desc;
+
+# where m.name like '%검색어%' or b.title like '%검색어%'
 

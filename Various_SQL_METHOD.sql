@@ -1,4 +1,5 @@
 USE sakila;
+use doitsql;
 #문자열 함수
 # concat concat_ws()
 select concat(first_name, ',', last_name) as customer_name from customer; # concat 함수로 열 이름과 문자열 연결
@@ -72,3 +73,46 @@ select char_length('do it mysql!'), char_length('두잇 마이에스큐앨'); # 
 
 select first_name, length(first_name), char_length(first_name) from customer; # 문자열 대신 열의 이름을 넣는 것도 가능
 select 'do it sql!!', position('!' in 'do it mysql!!');
+
+select 'Do it!! SQL', position('#' in 'Do it!! SQL');
+
+select 'Do it!! SQL', position('#' in 'Do it!! SQL');
+
+select 'Do it!! SQL', left('Do it!! SQL',2), right('Do it!! SQL',2);
+
+select 'Do it!! SQL', substring('Do it!! SQL',4,2); # 공백 포함해서 4번째인 i부터 2자리 수 까지 표현하니 it가 출력됨.
+
+select first_name, substring(first_name,2,3) from customer;
+
+select substring('abc@email.com',1,position('@'in'abc@email.com')-1); # 포지션으로 @까지 문자열 수를 구함 4 근데 뒤에 -1땜에 3번째 까지 출력함.
+
+select first_name,replace(first_name,'A','C')
+from customer where first_name like 'A%'; # 리플레이스는 대체 ㅇㅇ 그래서 a를 c로 대체해서 출력함
+
+select repeat('0',10);
+
+select first_name, replace(first_name, 'A',repeat('C',10))
+from customer where first_name like '%A%';
+
+select concat(first_name, space(10), last_name) from customer; #스페이스는 공백을 만듦. 컨캣으로 퍼스트네임 공백10칸 라스트네임 이렇게 합침 ㅇㅇ
+
+select 'Do it!! SQL', reverse('Do it!! SQL'); #리버스 반대 ㅇㅇ
+
+with ip_list(ip)
+as(
+select '192.168.0.1' union all
+select '10.6.100.99' union all
+select '8.8.8.8' union all
+select '192.200.212.113')
+select ip, substr(ip,1,char_length(ip) - position('.'in reverse(ip)))
+from ip_list;
+
+select strcmp('Do it!! SQL','Do it!! SQL'); #문자열 비교 함 비교 문자열이 같아서 0으로 출력함.
+select strcmp('Do it!! SQL', 'Do it!! SQL!');
+
+select current_date(), current_time(),current_timestamp(),now();
+
+select current_date(), current_time(3),current_timestamp(3),now(3);
+
+select current_timestamp(3),utc_date(),utc_time(3),utc_timestamp(3);
+
